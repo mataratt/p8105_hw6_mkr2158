@@ -143,5 +143,42 @@ tidy(birthweight_model) |>
   knitr::kable()
 ```
 
-* My modeling process derives from previous research and literature on factors influencing birthweight.
-  * `babysex` was selected since male infants generally may have higher average birthweights compared to female infants
+* My modeling process derives from previous research and literature on factors influencing birth weight.
+  * `babysex`: selected since male infants generally may have higher average birth weights compared to female infants
+  * `frace`: selected since a father's genetic code may influence the growth which can influence birth weight
+  * `gaweek`: selected since there is a general positive association between gestational week and birth week
+  * `malform`: selected as birth defects may lead to lower birth weights
+  * `momage`: selected as extreme ages (very young vs. very old) may lead to variations in risk of extreme low/high birth weights
+  * `mrace`: selected since a mother's genetic code may influence growth which influence birth weight
+  * `ppbmi`: selected because pre-pregnancy BMI is directly correlated with birth weight. Low pre-pregnancy BMI may lead to lower birth weight and vice versa
+  * `smoken`: selected because smoking causes a dose-response effect where higher number of cigarettes may lead to lower birth weight
+  
+#### Plotting Residuals vs. Fitted Values
+
+```{r}
+birthweight |> 
+  modelr::add_predictions(birthweight_model) |> 
+  modelr::add_residuals(birthweight_model) |> 
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point(alpha = 0.25) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(
+    title = expression(bold("Figure 3. Residuals vs. Fitted values for Birth Weight Model")),
+    x = "Fitted Birth Weight (grams)",
+    y = "Residuals"
+  )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
