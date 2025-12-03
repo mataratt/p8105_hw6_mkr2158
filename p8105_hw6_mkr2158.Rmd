@@ -97,6 +97,20 @@ weather_estimates |>
 * The distribution for R<sup>2</sup> is relatively normally skewed and symmetric. The data is highly concentrated near 0.94 with little fluctuation in the sample. 
 * The distribution for β<sub>1</sub> /β<sub>2</sub>, (`tmin`/`prcp`) is noticeably right-skewed (much of the data is concentrated -250 and onward). Large negative outliers may be attributed to precipitation `prcp` being small and near zero, thereby leading to a longer left tail. 
 
+Calculating 2.5% and 97.5% quantiles and providing a 95% confidence interval
+```{r}
+weather_estimates |> 
+  summarize(
+    r2_lower  = quantile(r.squared, 0.025),
+    r2_upper  = quantile(r.squared, 0.975),
+    betar_lower  = quantile(beta_ratio, 0.025),
+    betar_upper  = quantile(beta_ratio, 0.975)
+  ) |> 
+  knitr::kable()
+```
+
+* The 95% confidence interval for R<sup>2</sup> is (0.93, 0.95), which is very narrow. This supports the model's ability to strongly explain variation in temperature.
+* The 95% confidence interval for β<sub>1</sub> /β<sub>2</sub> is (-274.79, -125.48), a much wider interval. There is more variability likely due to precipation `prcp` being a smaller and in the denominator.
 
 
 
