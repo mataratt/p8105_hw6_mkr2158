@@ -10,6 +10,8 @@ library(tidyverse)
 library(p8105.datasets)
 library(modelr)
 library(viridis)
+library(broom)
+
 data("weather_df")
 
 set.seed(1)
@@ -21,7 +23,7 @@ N/A
 
 ## Problem 2
 
-Cleaning up `weather_df` data, fitting linear model, and bootstrapping
+#### Cleaning up `weather_df` data, fitting linear model, and bootstrapping
 ```{r}
 weather_df =
   weather_df |> 
@@ -71,7 +73,7 @@ weather_estimates =
   left_join(r2, betas, by=".id")
 ```
 
-Plotting the distribution of estimates
+#### Plotting the distribution of estimates
 ```{r}
 #R2 Distribution
 weather_estimates |> 
@@ -97,7 +99,7 @@ weather_estimates |>
 * The distribution for R<sup>2</sup> is relatively normally skewed and symmetric. The data is highly concentrated near 0.94 with little fluctuation in the sample. 
 * The distribution for β<sub>1</sub> /β<sub>2</sub>, (`tmin`/`prcp`) is noticeably right-skewed (much of the data is concentrated -250 and onward). Large negative outliers may be attributed to precipitation `prcp` being small and near zero, thereby leading to a longer left tail. 
 
-Calculating 2.5% and 97.5% quantiles and providing a 95% confidence interval
+#### Calculating 2.5% and 97.5% quantiles and providing a 95% confidence interval
 ```{r}
 weather_estimates |> 
   summarize(
@@ -112,8 +114,34 @@ weather_estimates |>
 * The 95% confidence interval for R<sup>2</sup> is (0.93, 0.95), which is very narrow. This supports the model's ability to strongly explain variation in temperature.
 * The 95% confidence interval for β<sub>1</sub> /β<sub>2</sub> is (-274.79, -125.48), a much wider interval. There is more variability likely due to precipation `prcp` being a smaller and in the denominator.
 
+## Problem 3
 
+#### Importing data and cleaning up data
+```{r, message = FALSE}
+birthweight =
+  read_csv("data/birthweight.csv", na = c("NA", ".", "")) |> 
+  mutate(
+    babysex = factor(babysex),
+    frace = factor(frace),
+    malform = factor(malform),
+    mrace = factor(mrace),
+  )
 
+#Checking for any missing data
+birthweight |> 
+  summarize(across(everything(), \(x) sum(is.na(x))))
+  
+```
+* There is no presence of missing data, so we will move forward with building our model.
 
+#### Building Main Regression Model for Birthweight
+```{r}
+birthweight_model =
+  lm(bwt ~ babysex + frace + gaweeks + malform + momage + mrace + ppbmi + smoken, data = birthweight)
 
+tidy(birthweight_model) |> 
+  knitr::kable()
+```
 
+* My modeling process derives from previous research and literature on factors influencing birthweight.
+  * `babysex` was selected since male infants generally may have higher average birthweights compared to female infants
