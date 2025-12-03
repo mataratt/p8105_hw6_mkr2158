@@ -9,6 +9,7 @@ date: "2025-12-03"
 library(tidyverse)
 library(p8105.datasets)
 library(modelr)
+library(viridis)
 data("weather_df")
 
 set.seed(1)
@@ -70,10 +71,31 @@ weather_estimates =
   left_join(r2, betas, by=".id")
 ```
 
+Plotting the distribution of estimates
+```{r}
+#R2 Distribution
+weather_estimates |> 
+  ggplot(aes(x = r.squared)) +
+  geom_density(linewidth = 0.8, fill = "#440154", alpha = 0.5) +
+  labs(
+    title = expression(bold("Figure 1. Distribution for R"^2)),
+    x = expression(bold("R"^2)),
+    y = expression(bold("Density"))
+  )
+  
+#Beta Distribution
+weather_estimates |> 
+  ggplot(aes(x = beta_ratio)) +
+  geom_density(linewidth = 0.8, fill = "#3b528b", alpha = 0.5) +
+  labs(
+    title = expression(bold("Figure 2. Distribution for " *beta[1]* "/ " *beta[2])),
+    x = expression(bold("Estimate")),
+    y = expression(bold("Density"))
+  )  
+```
 
-
-
-
+* The distribution for R<sup>2</sup> is relatively normally skewed and symmetric. The data is highly concentrated near 0.94 with little fluctuation in the sample. 
+* The distribution for β<sub>1</sub> /β<sub>2</sub>, (`tmin`/`prcp`) is noticeably right-skewed (much of the data is concentrated -250 and onward). Large negative outliers may be attributed to precipitation `prcp` being small and near zero, thereby leading to a longer left tail. 
 
 
 
