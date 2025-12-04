@@ -169,10 +169,74 @@ birthweight |>
   )
 ```
 
+#### Comparison with Model with Length at Birth and Gestational Age
+```{r}
+blength_ga_model =
+  lm(bwt ~ blength + gaweeks, data = birthweight)
 
+tidy(blength_ga_model) |> 
+  knitr::kable()
+```
 
+#### Comparison with Model with Head Circumference, Length, Sex, and All Interactions
+```{r}
+bw_int_model =
+  lm(bwt ~ bhead * blength * babysex, data = birthweight)
 
+tidy(bw_int_model) |> 
+  knitr::kable()
+```
 
+#### Cross Validation
+```{r}
+birthweight_cv =
+  crossv_mc(birthweight, 100) |> 
+  mutate(
+    train = map(train, as_tibble),
+    test  = map(test, as_tibble),
+    
+    model_one = map(train, ~ lm(bwt ~ babysex + frace + gaweeks + malform +
+                                momage + mrace + ppbmi + smoken, data = .x)),
+    model_two = map(train, ~ lm(bwt ~ blength + gaweeks, data = .x)),
+    model_three = map(train, ~ lm(bwt ~ bhead * blength * babysex, data = .x)),
+    model_one_rmse = map2_dbl(
+      model_one, test, \(mod, df) rmse(model = mod, data = df)
+    ),
+    model_two_rmse = map2_dbl(
+      model_two, test, \(mod, df) rmse(model = mod, data = df)
+    ),
+    model_three_rmse = map2_dbl(
+      model_three, test, \(mod, df) rmse(model = mod, data = df)
+    )
+  )
+
+# Plotting RMSE
+
+birthweight_cv |> 
+  select(ends_with("_rmse")) |> 
+  pivot_longer(
+    everything(),
+    names_to = "model",
+    values_to = "rmse",
+    names_prefix = "rmse_"
+  ) |> 
+  mutate(model = fct_inorder(model)) |> 
+  ggplot(aes(x = model, y = rmse, fill = model)) +
+  geom_violin(alpha = 0.5) +
+  scale_fill_viridis_d(option = "D") +
+  labs(
+    title = expression(bold("Figure 4. Cross-Validated RMSE for All Birth Weight Models")),
+    x = "Model",
+    y = "RMSE",
+    fill = "Model"
+  ) +
+  theme_minimal()
+```
+
+* Model 1: My model with predictors: babysex, frace, gaweeks, malform, momage, mrace, ppbmi, and smoken
+* Model 2: with predictors Length at Birth and Gestational Age
+* Model 3: with predictors Head Circumference, Length, Sex, and All Interactions
+* **Conclusion**: Model 1 (my proposed model) generated the highest RMSE, centered around 450, compared to the other two models. Model 2 performed substantially better than Model 1. However, Model 3, containing head circumference, length, sex, and interactions, provides the best prediction for birth weight and offers the best accuracy. 
 
 
 
